@@ -1,0 +1,80 @@
+---
+title: "DataMining_Process"
+output:
+  html_document: default
+  pdf_document: default
+---
+        
+                    STEPS FOR DATA MINING PROCESS...........
+        
+    1) load the dataset
+    2) clean the data or pre-process the data
+    3) understand data use visual effact that is- (ggplot2::)
+    4) split your data into test and train
+    5) create model on train & predict on test.
+    6) Than see the model accuracy ........
+____________________________________________________________________________
+                        AT THE END OF STEP CHECK YOUR MODEL ACCURECY.......
+____________________________________________________________________________
+                    IF YOU SEE THIS SIGN(#) IT MEANS IT'S OPTIONAL PART.....
+
+
+STEP-1 :  Load the dataset
+
+
+```{r}
+library(psych)#(Optional)
+Data = read.csv("C:/Users/Dell/Desktop/data.csv")
+describe(Data)#(Optional)
+#You can also use summary function for Summarization purpose.......... 
+```
+
+
+STEP-2 :  Clean the data or pre-process the data
+
+
+```{r}
+cal = mean(Data$Calories,na.rm = T)
+Data$Calories = ifelse(is.na(Data$Calories),cal,Data$Calories)
+```
+
+STEP-3 : To understand data we use graph
+```{r}
+library(ggplot2)
+ggplot(Data) + geom_point(aes(x = Maxpulse,y = Pulse),color = "darkblue") + geom_smooth(aes(x = Maxpulse ,y = Pulse))
+```
+
+STEP-4 : Split your data into test and train
+
+```{r}
+Data$no = c(1:dim(Data)[1])#(We have to add new column for split data into test & train)
+
+#(As below we split data into test & train)
+Train = subset(Data,Data$no <= 135)
+Test = subset(Data,Data$no > 135)
+
+#(After split data we have to delete column which we added)
+Data = Data[-5]
+Train = Train[-5]
+Test = Test[-5]
+```
+
+
+STEP-5 : Create model on train & predict on test
+```{r}
+lm_model = lm(Duration ~.,data = Train)
+predect = predict(lm_model ,newdata = Test)
+
+```
+
+```{r}
+compare_result = cbind(actual = Test$Duration , predect = predect)#(we created another dataframe and we added ac-tual test column and predicted test column for check the error..or model)
+compare_result = as.data.frame(compare_result)
+compare_result$error = compare_result$actual - compare_result$predec #(Now in same dataframe we added new column which is actual test data -(minus) predicted test data)
+rmse = sqrt(mean(compare_result$error^2)) #(Now we do Square Root mean on error column.)
+```
+
+```{r}
+summary(lm_model)#(Now.. AS BELOW YOU CAN SEE OUR MODEL IS 0.8911% CORRECT....)
+```
+
